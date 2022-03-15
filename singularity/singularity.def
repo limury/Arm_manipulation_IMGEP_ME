@@ -1,0 +1,47 @@
+Bootstrap: library
+From: airl_lab/default/airl_env:bare_ci
+
+%labels
+    Author Lorenzo James Bernasconi
+    Version v0.0.1
+
+%post
+   export LD_LIBRARY_PATH="/workspace/lib:$LD_LIBRARY_PATH"
+
+   apt-get update
+   apt-get upgrade -y
+   DEBIAN_FRONTEND=noninteractive apt-get install -y python3-git python3-matplotlib python3-pip libsdl1.2-dev libomp-dev python3-sklearn python3-sklearn-lib
+   rm -rf /var/lib/apt/lists/*
+   pip3 install numpy -I
+   pip3 install Cython
+   pip3 install scipy==1.5.4
+   pip3 install explauto
+   pip3 install matplotlib==3.0.3
+
+   mkdir -p /git/sferes2/exp/map_elites_IMGEP
+   cd /git/sferes2/exp/
+   
+      #The above is a complete hack to make this work with the standard singularity scripts
+   # more code can come here
+   # ...
+   # ...
+   #====================================================================================================
+   exit 0 #NOTFORFINAL - the lines below this "exit" will be executed only when building the final image
+   #====================================================================================================
+   git clone  --recurse-submodules --single-branch --branch master https://gitlab.doc.ic.ac.uk/AIRL/students_projects/2019-2020/lorenzo_bernasconi/intrinsic_rewards/map_elites_IMGEP.git ./map_elites_IMGEP
+
+
+%runscript
+    CURPATH=$(pwd)
+    if [ ! -d ./results ]; then
+        mkdir results
+    fi
+
+    cd /git/sferes2/exp/map_elites_IMGEP/src
+    PATHNAME=IMGEP_$(date +%Y-%m-%d_%H_%M_%S_%N)
+    mkdir -p $CURPATH/results/$PATHNAME
+    
+    ./runner.sh $CURPATH/results/$PATHNAME/
+
+
+
